@@ -44,8 +44,8 @@ function homecredit_init()
 		return $methods;
 	}
 	add_filter( 'woocommerce_payment_gateways', 'add_homecredit_gateway_class' );
-	add_filter( 'plugin_action_links', 'ttt_wpmdr_add_action_plugin', 10, 5 );
-function ttt_wpmdr_add_action_plugin( $actions, $plugin_file ) 
+	add_filter( 'plugin_action_links', 'hawai_add_action_plugin', 10, 5 );
+function hawai_add_action_plugin( $actions, $plugin_file ) 
 {
 	static $plugin;
 
