@@ -62,10 +62,10 @@ function homecredit_init()
 
 				$this->title                    = $this->get_option( 'homecredit_title' );
 				$this->homecredit_description       = $this->get_option( 'homecredit_description');
-				$this->homecredit_clientid  	    = $this->get_option( 'homecredit_clientid' );
-				$this->homecredit_clientsecret      = $this->get_option( 'homecredit_clientsecret' );
-				$this->homecredit_merchant_number   = $this->get_option( 'homecredit_merchant_number' );
-				$this->homecredit_merchant_logo     = $this->get_option( 'homecredit_merchant_logo' );
+				$this->homecredit_merchantId  	    = $this->get_option( 'homecredit_merchantId' );
+				$this->homecredit_apiKey      = $this->get_option( 'homecredit_apiKey' );
+				// $this->homecredit_merchant_number   = $this->get_option( 'homecredit_merchant_number' );
+				
 
 				
 				if (is_admin()) 
@@ -105,44 +105,28 @@ function homecredit_init()
 						'title' =>  'Description',
 						'type' => 'textarea',
 						'description' =>  'This is the description which the user sees during checkout.',
-						'default' =>  'Safe and secure payments with Ghanaian issued cards and mobile money from all networks.',
+						'default' =>  'Deskripsi untuk penggunaan homecredit ada disini.',
 						'desc_tip'      => true,
 						),
 
-					'homecredit_clientid' => array(
-						'title' =>  'Client ID',
+					'homecredit_merchantId' => array(
+						'title' =>  'Merchant ID',
 						'type' => 'text',
-						'description' =>  'This is your homecredit API Client ID which you can find in your Dashboard.',
+						'description' =>  'This is your homecredit API Merchant ID which you can find in your Dashboard.',
 						'default' => '',
 						'desc_tip'      => true,
-						'placeholder' => 'Homecredit API Clientid'
+						'placeholder' => 'Homecredit API Merchant id'
 						),
 
-					'homecredit_clientsecret' => array(
-						'title' =>  'Client Secret',
+					'homecredit_apiKey' => array(
+						'title' =>  'API Key',
 						'type' => 'text',
-						'description' =>  'This is your homecredit API Client Secret which you can find in your Dashboard.',
+						'description' =>  'This is your homecredit API Client API Key which you can find in your Dashboard.',
 						'default' => '',
 						'desc_tip'      => true,
-						'placeholder' => 'homecredit API Clientsecret'
+						'placeholder' => 'homecredit API key'
 						),
-
-				'homecredit_merchant_number' => array(
-						'title' =>  'homecredit Merchant Number',
-						'type' => 'text',
-						'description' =>  'This is your homecredit Merchant Account which you can find in your Hubtel Dashboard',
-						'default' => '',
-						'desc_tip'      => true,
-						'placeholder' => 'homecredit Merchant Account Number'
-						),
-			'homecredit_merchant_logo' => array(
-						'title' =>  'Homecredit Merchant Logo URL',
-						'type' => 'text',
-						'description' =>  'This is the Merchant logo URL that should be displayed on the checkout page.',
-						'default' => '',
-						'desc_tip'      => true,
-						'placeholder' => 'http://merchant-website.com/logo.png'
-						)						
+										
 					);
 
 			}
@@ -212,20 +196,40 @@ function homecredit_init()
 						$total_cost += $order_value->get_total();
 						$items_counter++;
 				endforeach;
+				$homecreditcicilan = "12";
+				$billingArea = "JABODETABEK";
+				$shippingArea = "JABODETABEK";
 
 
 				//homecredit payment request body args
 				$homecredit_request_args = [
+					"userConfirmationUrl" => WC()->api_request_url( 'WC_Homecredit_Payment_Gateway'), //register callback 
+					"userCancelUrl" => get_home_url(), // checkout url disini
+					"orderId" => $order->get_id(),
+					"monthinstallment" => $homecreditcicilan,
+					"amount" => $total_cost,
+					"billingFirstName" => $order->get_billing_first_name(),
+                    "billingLastName" => $order->get_billing_last_name(),
+                    "billingEmail" => $order->get_billing_email(),
+                    "billingPhone" => $order->get_billing_phone(),
+                    "billingAddress" => $order->get_billing_address_1(),
+                    "billingCity" => $order->get_billing_city(),
+                    "billingArea" => $billingArea, 
+                    "billingZipcode" => $order->get_billing_postcode(),
+					//"shippingFirstName" => $order->get_shipping_first_name(),
+					//"shippingLastName" => $order->get_shipping_last_name(),
+					//"shippingEmail" => $order->get_shipping_email(),
+					//"shippingPhone" => $order->get_shipping_phone(),
+					//"shippingAddress" => $order->get_shipping_address_1(),
+					//"shippingCity" => $order->get_shipping_city(),
+					//"shippingArea" => $shippingArea,
+					//"shippingZipcode" => $order->get_shipping_postcode(),
 					"items" => $homecredit_items,
-					"totalAmount" =>$total_cost, //get total cost of order items // WC()->cart->get_cart_subtotal();
-					"description" => $this->get_option('homecredit_description'),
-					"callbackUrl" => WC()->api_request_url( 'WC_Homecredit_Payment_Gateway'), //register callback
-					"returnUrl" => $order->get_checkout_order_received_url(), //return to this page
-					"merchantBusinessLogoUrl" => $this->homecredit_merchant_logo, 
-					"merchantAccountNumber" => $this->homecredit_merchant_number,
-					"cancellationUrl" => get_home_url(), //checkout url
 					"clientReference" => date('s-').rand(0, 100).'-'.$order_id //generate a unique id the client reference
 				];
+				
+				//var_dump($homecredit_request_args);
+				//die;
 				
 				
 				//initiate request to Homecredit payments API
@@ -234,16 +238,15 @@ function homecredit_init()
 					'method' => 'POST',
 					'timeout' => 45,
 					'headers' => array(
-						'Authorization' => 'Basic '.base64_encode($this->homecredit_clientid.':'.$this-homecredit_clientsecret),
+						'Authorization' => 'Basic '.base64_encode($this->homecredit_apiKey.':'.$this->homecreditId),
 						'Content-Type' => 'application/json'
 					),
 					'body' => json_encode($homecredit_request_args)
-					)
+					) 
 				);
 
-                var_dump($response);
-                die;
-
+            
+                
 				//retrieve response body and extract the 
 				$response_code = wp_remote_retrieve_response_code( $response );
 				$response_body = wp_remote_retrieve_body($response);
