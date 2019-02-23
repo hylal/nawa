@@ -29,12 +29,13 @@ along with Home Credit OB Fit. If not, see https://www.gnu.org/licenses/gpl-2.0.
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))){
-    echo "<div class='error notice'><p>Woocommerce has to be installed and active to use the the Hubtel Payments Gateway</b> plugin</p></div>";
+    echo "<div class='error notice'><p>Woocommerce has to be installed and active to use the the HCI Payments Gateway</b> plugin</p></div>";
     return;
 }
 
 function homecredit_init()
 {
+
 
 
 	function add_homecredit_gateway_class( $methods ) 
@@ -43,11 +44,31 @@ function homecredit_init()
 		return $methods;
 	}
 	add_filter( 'woocommerce_payment_gateways', 'add_homecredit_gateway_class' );
+	add_filter( 'plugin_action_links', 'ttt_wpmdr_add_action_plugin', 10, 5 );
+function ttt_wpmdr_add_action_plugin( $actions, $plugin_file ) 
+{
+	static $plugin;
+
+	if (!isset($plugin))
+		$plugin = plugin_basename(__FILE__);
+	if ($plugin == $plugin_file) {
+
+			$settings = array('settings' => '<a href="' . admin_url('admin.php?page=wc-settings&tab=checkout&section=homecredit-payments') . '">' . __('Settings', 'General') . '</a>');
+			$site_link = array('support' => '<a href="https://github.com/hylal/nawa" target="_blank">Support</a>');
+		
+    			$actions = array_merge($settings, $actions);
+				$actions = array_merge($site_link, $actions);
+			
+		}
+		
+		return $actions;
+}
 
 	if(class_exists('WC_Payment_Gateway'))
 	{
 		class WC_Homecredit_Payment_Gateway extends WC_Payment_Gateway 
 		{
+			
 
 			public function __construct()
 			{
@@ -79,8 +100,11 @@ function homecredit_init()
 				
 				//register webhook listener action
 				add_action( 'woocommerce_api_wc_homecredit_payment_gateway', array( $this, 'check_homecredit_payment_webhook' ) );
-
+				
+												
 			}
+			
+			
 
 			public function init_form_fields()
 			{
@@ -295,6 +319,4 @@ function homecredit_init()
 add_action( 'plugins_loaded', 'homecredit_init' );
 
 //Alhamdulillahirabbil alamin
-
-
 
