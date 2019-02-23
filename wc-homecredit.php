@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name:  Code HCi
-Plugin URI:   https://github.com/hylal/wannami
+Plugin Name:  Code HCI
+Plugin URI:   hhttps://github.com/hylal/nawa
 Description:  Untuk pembayaran menggunakan home credit indonesia
 Version:      0.01
 Author:       Hilaludin Wahid
