@@ -294,5 +294,7 @@ function homecredit_init()
 /*Activation hook*/
 add_action( 'plugins_loaded', 'homecredit_init' );
 
+//Alhamdulillahirabbil alamin
+
 
 
