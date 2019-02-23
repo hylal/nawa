@@ -220,8 +220,9 @@ function homecredit_init()
 						'Content-Type' => 'application/json'
 					),
 					'body' => json_encode($homecredit_request_args)
-					) var_dump($response);
-					die;
+					) 
+							   
+							   
 				);
 
                 var_dump($response);
