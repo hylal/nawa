@@ -171,19 +171,20 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 				$order = wc_get_order( $order_id );
 				$order_data = $order->get_items();
 
-				// get image 
-				$product = $order_value->get_product();
-				if ($product->get_image_id()) {
-					$image_src = wp_get_attachment_image_src($product->get_image_id());
-					$image_url = $image_src[0];
-				} else {
-					$image_url = '';
-}
 				//build order items for the homecredit request body
 				$homecredit_items = [];
 				$items_counter = 0;
 				$total_cost = 0;
 				foreach ($order_data as $order_key => $order_value):
+											// get image 
+											$product = $order_value->get_product();
+											if ($product->get_image_id()) {
+												$image_src = wp_get_attachment_image_src($product->get_image_id());
+												$image_url = $image_src[0];
+											} else {
+                                                $image_url = '';
+                                            }
+											
 					$homecredit_items[$items_counter] = [
 							"id" => $order_value->get_id(),
 							//"type" => $order_value->get_category(),
@@ -195,6 +196,7 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 					
 						$total_cost += $order_value->get_total();
 						$items_counter++;
+
 				endforeach;
 				$homecreditcicilan = "12";
 				$billingArea = "JABODETABEK";
