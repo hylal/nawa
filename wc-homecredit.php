@@ -170,6 +170,15 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 				// Get an instance of the WC_Order object
 				$order = wc_get_order( $order_id );
 				$order_data = $order->get_items();
+
+				// get image 
+				$product = $order_value->get_product();
+				if ($product->get_image_id()) {
+					$image_src = wp_get_attachment_image_src($product->get_image_id());
+					$image_url = $image_src[0];
+				} else {
+					$image_url = '';
+}
 				//build order items for the homecredit request body
 				$homecredit_items = [];
 				$items_counter = 0;
@@ -178,7 +187,7 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 					$homecredit_items[$items_counter] = [
 							"id" => $order_value->get_id(),
 							//"type" => $order_value->get_category(),
-							"imageUrl" => $product->get_image(),
+							"imageUrl" => $image_url,
 							"name" => $order_value->get_name(),
 							"quantity" => $order_value->get_quantity(), // Get the item quantity
 							"Price" => $order_value->get_total()/$order_value->get_quantity()
