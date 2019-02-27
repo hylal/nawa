@@ -195,7 +195,7 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 							"imageUrl" => $image_url,
 							"name" => $order_value->get_name(),
 							"quantity" => $order_value->get_quantity(), // Get the item quantity
-							"Price" => $order_value->get_total()/$order_value->get_quantity()
+							"price" => $order_value->get_total()/$order_value->get_quantity()
 					];
 					
 						$total_cost += $order_value->get_total();
@@ -228,7 +228,7 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 					"shippingCity" => $order->get_shipping_city(),
 					"shippingArea" => $shippingArea,
 					"shippingZipcode" => $order->get_shipping_postcode(),
-					"items" => $homecredit_items,
+					"item" => $homecredit_items,
 					"clientReference" => date('s-').rand(0, 100).'-'.$order_id //generate a unique id the client reference
 				];
 				
@@ -240,11 +240,14 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 				$response = wp_remote_post($base_url . "/" . checkout, array(
 					'method' => 'POST',
 					'headers' => array(
+						//'Authorization' => 'Basic '.base64_encode($this->homecredit_apiKey.':'.$this->homecredit_merchantId),
 						'merchantId' => '1000055',
 						'apiKey' => '8018D37C71411E48E0531415380A298D',
 						'Content-Type' => 'application/json',
+						//'Content-Length' => '',
 					),
 					'body' => json_encode($homecredit_request_args),
+					'blocking' => true
 					) 
 				);
 
