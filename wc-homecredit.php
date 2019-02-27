@@ -176,18 +176,22 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 				$items_counter = 0;
 				$total_cost = 0;
 				foreach ($order_data as $order_key => $order_value):
-											// get image 
-											$product = $order_value->get_product();
-											if ($product->get_image_id()) {
-												$image_src = wp_get_attachment_image_src($product->get_image_id());
-												$image_url = $image_src[0];
-											} else {
-                                                $image_url = '';
-                                            }
-											
-					$homecredit_items[$items_counter] = [
+				// get image 
+				$product = $order_value->get_product();
+				if ($product->get_image_id()) {
+					$image_src = wp_get_attachment_image_src($product->get_image_id());
+					$image_url = $image_src[0];
+					} else {
+                    $image_url = '';
+					}
+					// adding category product as item
+				$kategori_id = $product->get_id();
+				$type = wc_get_product_category_list($kategori_id);
+				// items add to cart
+
+				$homecredit_items[$items_counter] = [
 							"id" => $order_value->get_id(),
-							//"type" => $order_value->get_category(),
+							"type" => strip_tags($type), 
 							"imageUrl" => $image_url,
 							"name" => $order_value->get_name(),
 							"quantity" => $order_value->get_quantity(), // Get the item quantity
@@ -228,26 +232,24 @@ function hawai_add_action_plugin( $actions, $plugin_file )
 					"clientReference" => date('s-').rand(0, 100).'-'.$order_id //generate a unique id the client reference
 				];
 				
-				var_dump($homecredit_request_args);
-				die;
-				
+				//var_dump($homecredit_request_args);
+				//die;
 				
 				//initiate request to Homecredit payments API
 				$base_url = 'https://sandbox.homecredit.co.id/online-api';
 				$response = wp_remote_post($base_url . "/" . checkout, array(
 					'method' => 'POST',
-					'timeout' => 45,
 					'headers' => array(
-						'merchantId' => $this->homecredit_merchantId,
-						'apiKey' => $this->homecredit_apiKey,
-						'Content-Type' => 'application/json'
+						'merchantId' => '1000055',
+						'apiKey' => '8018D37C71411E48E0531415380A298D',
+						'Content-Type' => 'application/json',
 					),
-					'body' => json_encode($homecredit_request_args)
+					'body' => json_encode($homecredit_request_args),
 					) 
 				);
 
-				//var_dump($response);
-				//die;
+				var_dump($response);
+				die;
             
                 
 				//retrieve response body and extract the 
